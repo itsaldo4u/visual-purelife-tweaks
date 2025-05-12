@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Leaf } from "lucide-react";
+import { ArrowLeft, ArrowRight, Leaf, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
@@ -80,10 +80,21 @@ const Nutrition = () => {
                     Our approach focuses on nutrient-dense whole foods that provide your body with the 
                     building blocks it needs to thrive.
                   </p>
-                  <p className="text-purelife-gray">
+                  <p className="text-purelife-gray mb-6">
                     We don't advocate for restrictive diets or quick fixes. Instead, we encourage mindful 
                     eating, balanced meals, and a positive relationship with food.
                   </p>
+                  
+                  {/* New CTA for the survey */}
+                  <Link to="/nutrition-survey">
+                    <Button 
+                      className="bg-purelife-green hover:bg-purelife-green-dark flex items-center gap-2"
+                    >
+                      <ListChecks className="h-4 w-4" />
+                      Take our Nutrition Assessment
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
