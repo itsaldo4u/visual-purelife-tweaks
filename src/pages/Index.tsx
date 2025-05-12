@@ -3,6 +3,7 @@ import { ArrowRight, Heart, Leaf, Smile, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const { toast } = useToast();
@@ -33,9 +34,11 @@ const Index = () => {
                 <Button onClick={handleGetStarted} size="lg" className="bg-purelife-green hover:bg-purelife-green-dark btn-hover">
                   Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="lg" className="border-purelife-green text-purelife-green hover:text-purelife-green-dark hover:border-purelife-green-dark btn-hover">
-                  Learn More
-                </Button>
+                <Link to="/mindfulness">
+                  <Button variant="outline" size="lg" className="border-purelife-green text-purelife-green hover:text-purelife-green-dark hover:border-purelife-green-dark btn-hover">
+                    Learn More
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="flex-1 relative max-w-md">
@@ -86,17 +89,20 @@ const Index = () => {
               {
                 title: "Mindful Nutrition",
                 description: "Discover wholesome, nutrient-rich foods that fuel your body and support overall health.",
-                image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80"
+                image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80",
+                link: "/nutrition"
               },
               {
                 title: "Regular Exercise",
                 description: "Find activities you enjoy that keep you moving and help maintain physical strength and flexibility.",
-                image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+                image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+                link: "/exercise"
               },
               {
                 title: "Mindfulness Practice",
                 description: "Cultivate awareness and presence through meditation and mindfulness techniques.",
-                image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1099&q=80"
+                image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1099&q=80",
+                link: "/mindfulness"
               }
             ].map((feature, index) => (
               <Card key={index} className="border-none shadow-md overflow-hidden card-hover">
@@ -114,9 +120,11 @@ const Index = () => {
                   <p className="text-purelife-gray">{feature.description}</p>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="link" className="text-purelife-green hover:text-purelife-green-dark p-0">
-                    Learn more <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
+                  <Link to={feature.link}>
+                    <Button variant="link" className="text-purelife-green hover:text-purelife-green-dark p-0">
+                      Learn more <ArrowRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}
@@ -160,11 +168,11 @@ const Index = () => {
               <p className="text-purelife-gray mt-2">Embrace a healthier lifestyle</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-6 items-center">
-              <a href="#" className="text-purelife-brown hover:text-purelife-green">Home</a>
-              <a href="#" className="text-purelife-brown hover:text-purelife-green">About</a>
-              <a href="#" className="text-purelife-brown hover:text-purelife-green">Services</a>
-              <a href="#" className="text-purelife-brown hover:text-purelife-green">Blog</a>
-              <a href="#" className="text-purelife-brown hover:text-purelife-green">Contact</a>
+              <Link to="/" className="text-purelife-brown hover:text-purelife-green">Home</Link>
+              <Link to="/nutrition" className="text-purelife-brown hover:text-purelife-green">Nutrition</Link>
+              <Link to="/exercise" className="text-purelife-brown hover:text-purelife-green">Exercise</Link>
+              <Link to="/mindfulness" className="text-purelife-brown hover:text-purelife-green">Mindfulness</Link>
+              <Link to="/" className="text-purelife-brown hover:text-purelife-green">Contact</Link>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-purelife-brown/10 text-center text-sm text-purelife-gray">
