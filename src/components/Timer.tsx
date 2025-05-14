@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTimer } from '@/hooks/use-timer';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Play, Pause, Stop } from 'lucide-react';
+import { Play, Pause, Square as Stop } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface TimerProps {
