@@ -37,11 +37,12 @@ type NutritionSurveyForm = {
   sleep: string;
   stress: string;
   goals: string;
+  supplements: string;
 };
 
 const NutritionSurvey = () => {
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [results, setResults] = useState<{
     score: number;
@@ -61,20 +62,99 @@ const NutritionSurvey = () => {
       sleep: "",
       stress: "",
       goals: "",
+      supplements: "",
     },
   });
 
-  const totalSteps = 3;
+  const questions = [
+    {
+      name: "fruitVeggies",
+      label: "How often do you eat fruits and vegetables?",
+      options: [
+        { value: "often", label: "Often (5+ servings daily)" },
+        { value: "sometimes", label: "Sometimes (2-4 servings daily)" },
+        { value: "rarely", label: "Rarely (0-1 servings daily)" }
+      ]
+    },
+    {
+      name: "protein",
+      label: "How often do you consume adequate protein?",
+      options: [
+        { value: "often", label: "Often (With most meals)" },
+        { value: "sometimes", label: "Sometimes (With some meals)" },
+        { value: "rarely", label: "Rarely (Minimal protein)" }
+      ]
+    },
+    {
+      name: "water",
+      label: "How often do you drink water?",
+      options: [
+        { value: "often", label: "Often (8+ glasses daily)" },
+        { value: "sometimes", label: "Sometimes (4-7 glasses daily)" },
+        { value: "rarely", label: "Rarely (0-3 glasses daily)" }
+      ]
+    },
+    {
+      name: "processed",
+      label: "How often do you eat processed foods?",
+      options: [
+        { value: "often", label: "Often (Multiple times daily)" },
+        { value: "sometimes", label: "Sometimes (A few times weekly)" },
+        { value: "rarely", label: "Rarely (Minimal processed foods)" }
+      ]
+    },
+    {
+      name: "exercise",
+      label: "How often do you exercise?",
+      options: [
+        { value: "often", label: "Often (4+ times weekly)" },
+        { value: "sometimes", label: "Sometimes (1-3 times weekly)" },
+        { value: "rarely", label: "Rarely (Less than weekly)" }
+      ]
+    },
+    {
+      name: "sleep",
+      label: "How often do you get adequate sleep (7-9 hours)?",
+      options: [
+        { value: "often", label: "Often (Most nights)" },
+        { value: "sometimes", label: "Sometimes (A few nights weekly)" },
+        { value: "rarely", label: "Rarely (Seldom get enough sleep)" }
+      ]
+    },
+    {
+      name: "stress",
+      label: "How often do you feel stressed?",
+      options: [
+        { value: "often", label: "Often (Daily stress)" },
+        { value: "sometimes", label: "Sometimes (Occasional stress)" },
+        { value: "rarely", label: "Rarely (Minimal stress)" }
+      ]
+    },
+    {
+      name: "supplements",
+      label: "Do you take any nutritional supplements?",
+      options: [
+        { value: "often", label: "Yes, regularly" },
+        { value: "sometimes", label: "Sometimes" },
+        { value: "rarely", label: "No, never" }
+      ]
+    },
+    {
+      name: "goals",
+      label: "What are your main health goals?",
+      isTextarea: true
+    }
+  ];
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
     }
   };
 
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+  const prevQuestion = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion((prev) => prev - 1);
     }
   };
 
@@ -104,6 +184,10 @@ const NutritionSurvey = () => {
     
     if (data.stress === "rarely") score += 10;
     else if (data.stress === "sometimes") score += 5;
+    
+    // Supplements scoring
+    if (data.supplements === "often") score += 5;
+    else if (data.supplements === "sometimes") score += 3;
     
     // Calculate category based on score
     let category: string;
@@ -165,6 +249,11 @@ const NutritionSurvey = () => {
       recommendations.push("Consider adding stress-reduction techniques to your routine");
       foodsToAdd.push("Foods rich in magnesium like nuts and seeds", "Calming herbal teas");
     }
+
+    if (data.supplements === "rarely") {
+      recommendations.push("Consider discussing supplements with a healthcare provider");
+      foodsToAdd.push("Foods rich in essential nutrients your diet may be missing");
+    }
     
     return {
       score,
@@ -184,6 +273,9 @@ const NutritionSurvey = () => {
       description: "Your personalized recommendations are ready.",
     });
   };
+
+  const currentQuestionData = questions[currentQuestion];
+  const progressPercentage = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -216,346 +308,66 @@ const NutritionSurvey = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="flex justify-between mb-6">
-                    {Array.from({ length: totalSteps }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-full h-2 mx-1 rounded-full ${
-                          i + 1 <= currentStep ? "bg-purelife-green" : "bg-gray-200"
-                        }`}
-                      />
-                    ))}
+                  <div className="mb-6">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-purelife-green h-2.5 rounded-full transition-all duration-300 ease-out" 
+                        style={{ width: `${progressPercentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between mt-2 text-sm text-purelife-gray">
+                      <span>Question {currentQuestion + 1} of {questions.length}</span>
+                      <span>{Math.round(progressPercentage)}% Complete</span>
+                    </div>
                   </div>
 
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      {currentStep === 1 && (
-                        <div className="space-y-6 animate-fade-in">
-                          <h2 className="text-xl font-medium text-purelife-brown">Your Diet</h2>
-
+                      <div className="animate-fade-in">
+                        {!currentQuestionData.isTextarea ? (
                           <FormField
                             control={form.control}
-                            name="fruitVeggies"
+                            name={currentQuestionData.name as keyof NutritionSurveyForm}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>How often do you eat fruits and vegetables?</FormLabel>
+                                <FormLabel className="text-lg font-medium text-purelife-brown">
+                                  {currentQuestionData.label}
+                                </FormLabel>
                                 <FormControl>
                                   <RadioGroup
                                     onValueChange={field.onChange}
                                     value={field.value}
-                                    className="flex flex-col space-y-1"
+                                    className="flex flex-col space-y-3 mt-4"
                                   >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (5+ servings daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (2-4 servings daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (0-1 servings daily)
-                                      </FormLabel>
-                                    </FormItem>
+                                    {currentQuestionData.options?.map((option, i) => (
+                                      <FormItem key={i} className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-purelife-beige/10 transition-colors">
+                                        <FormControl>
+                                          <RadioGroupItem value={option.value} />
+                                        </FormControl>
+                                        <FormLabel className="font-normal text-base cursor-pointer flex-1">
+                                          {option.label}
+                                        </FormLabel>
+                                      </FormItem>
+                                    ))}
                                   </RadioGroup>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-
+                        ) : (
                           <FormField
                             control={form.control}
-                            name="protein"
+                            name={currentQuestionData.name as keyof NutritionSurveyForm}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>How often do you consume adequate protein?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (With most meals)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (With some meals)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (Minimal protein)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="water"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>How often do you drink water?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (8+ glasses daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (4-7 glasses daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (0-3 glasses daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      )}
-
-                      {currentStep === 2 && (
-                        <div className="space-y-6 animate-fade-in">
-                          <h2 className="text-xl font-medium text-purelife-brown">Your Lifestyle</h2>
-
-                          <FormField
-                            control={form.control}
-                            name="processed"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>How often do you eat processed foods?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (Multiple times daily)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (A few times weekly)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (Minimal processed foods)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="exercise"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>How often do you exercise?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (4+ times weekly)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (1-3 times weekly)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (Less than weekly)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="sleep"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>How often do you get adequate sleep (7-9 hours)?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (Most nights)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (A few nights weekly)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (Seldom get enough sleep)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      )}
-
-                      {currentStep === 3 && (
-                        <div className="space-y-6 animate-fade-in">
-                          <h2 className="text-xl font-medium text-purelife-brown">Your Wellbeing</h2>
-
-                          <FormField
-                            control={form.control}
-                            name="stress"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>How often do you feel stressed?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="often" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Often (Daily stress)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="sometimes" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Sometimes (Occasional stress)
-                                      </FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl>
-                                        <RadioGroupItem value="rarely" />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        Rarely (Minimal stress)
-                                      </FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="goals"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>What are your main health goals?</FormLabel>
+                                <FormLabel className="text-lg font-medium text-purelife-brown">
+                                  {currentQuestionData.label}
+                                </FormLabel>
                                 <FormControl>
                                   <Textarea
                                     placeholder="I want to improve my energy levels, sleep better, etc."
-                                    className="resize-none"
+                                    className="resize-none h-32 mt-4"
                                     {...field}
                                   />
                                 </FormControl>
@@ -563,27 +375,28 @@ const NutritionSurvey = () => {
                               </FormItem>
                             )}
                           />
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
 
                 <CardFooter className="flex justify-between">
-                  {currentStep > 1 && (
+                  {currentQuestion > 0 && (
                     <Button 
                       variant="outline" 
-                      onClick={prevStep}
+                      onClick={prevQuestion}
                       className="border-purelife-green text-purelife-green hover:bg-purelife-green/10"
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Previous
                     </Button>
                   )}
                   
-                  {currentStep < totalSteps ? (
+                  {currentQuestion < questions.length - 1 ? (
                     <Button 
-                      onClick={nextStep}
-                      className="ml-auto bg-purelife-green hover:bg-purelife-green-dark"
+                      onClick={nextQuestion}
+                      className={`${currentQuestion === 0 ? 'w-full' : 'ml-auto'} bg-purelife-green hover:bg-purelife-green-dark`}
+                      disabled={!form.getValues()[questions[currentQuestion].name as keyof NutritionSurveyForm]}
                     >
                       Next <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -591,6 +404,7 @@ const NutritionSurvey = () => {
                     <Button 
                       onClick={form.handleSubmit(onSubmit)}
                       className="ml-auto bg-purelife-green hover:bg-purelife-green-dark"
+                      disabled={!form.getValues()[questions[currentQuestion].name as keyof NutritionSurveyForm]}
                     >
                       Complete <Check className="ml-2 h-4 w-4" />
                     </Button>
@@ -611,7 +425,7 @@ const NutritionSurvey = () => {
                     <div className="p-6 bg-purelife-beige/50 rounded-xl text-center">
                       <h3 className="text-lg font-medium mb-2">Your Wellness Score</h3>
                       <div className="text-4xl font-bold text-purelife-green mb-1">
-                        {results?.score} / 70
+                        {results?.score} / 75
                       </div>
                       <div className="text-purelife-brown font-medium">
                         {results?.category} Category
